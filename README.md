@@ -7,10 +7,9 @@
   
   <p align="center">
     <a href="https://github.com/NJU-LINK/IF-VidCap"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
-    <a href="https://arxiv.org/abs/YOUR_PAPER_ID"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"></a>
+    <a href="https://arxiv.org/abs/2510.18726"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"></a>
     <a href="https://if-vidcap.github.io/"><img src="https://img.shields.io/badge/Project-Page-blue?style=for-the-badge" alt="Project Page"></a>
-    <a href="https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow?style=for-the-badge" alt="Dataset"></a>
-    <a href="YOUR_DEMO_LINK"><img src="https://img.shields.io/badge/Demo-Live-green?style=for-the-badge" alt="Demo"></a>
+    <a href="https://huggingface.co/datasets/NJU-LINK/IF-VidCap"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-Dataset-yellow?style=for-the-badge" alt="Dataset"></a>
   </p>
 
   <p align="center">
@@ -56,6 +55,12 @@ To address this gap, we introduce **IF-VidCap**, a new benchmark for evaluating 
 - **Average Constraints**: 6 per instruction
 - **Video Categories**: 13+ diverse categories including Film & TV, Animation, Sports, Nature, etc.
 
+## 📰 News
+- **[22/10/2025]** 📝 Our paper is now available on arXiv
+- **[22/10/2025]** 🤗 Dataset is now available on Hugging Face
+- **[Coming Soon]** 🚀 Evaluation scripts will be available soon
+- **[Coming Soon]** 🚀 Training dataset and code will be released
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -63,75 +68,50 @@ To address this gap, we introduce **IF-VidCap**, a new benchmark for evaluating 
 ```bash
 git clone https://github.com/NJU-LINK/IF-VidCap.git
 cd IF-VidCap
-pip install -r requirements.txt
+pip install openai
 ```
 
 ### Download Dataset
 
-#### Using Hugging Face Datasets
-
-```python
-from datasets import load_dataset
-
-# Load the benchmark dataset
-benchmark_dataset = load_dataset("YOUR_USERNAME/IF-VidCap", name="benchmark")
-
-# Load the training dataset (optional)
-training_dataset = load_dataset("YOUR_USERNAME/IF-VidCap", name="training")
-
-# Access samples
-sample = benchmark_dataset['test'][0]
-print(sample['instruction'])
-print(sample['video_path'])
-```
-
-#### Using Git LFS
-
 ```bash
-# Clone with Git LFS
-git lfs install
-git clone https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap
-
-# Or use huggingface-cli
-huggingface-cli download YOUR_USERNAME/IF-VidCap --local-dir ./IF-VidCap --local-dir-use-symlinks False
+# use huggingface-cli
+hf download NJU-LINK/IF-VidCap --local-dir ./IF-VidCap --include-pattern "*.mp4"
 ```
 
 ### Evaluation
 
 ```python
-from ifvidcap import IFVidCapEvaluator
-from datasets import load_dataset
-
-# Initialize evaluator
-evaluator = IFVidCapEvaluator()
-
-# Load dataset from Hugging Face
-dataset = load_dataset("YOUR_USERNAME/IF-VidCap", name="benchmark")
-
-# Load your model predictions
-predictions = load_predictions("path/to/predictions.json")
-
-# Run evaluation
-results = evaluator.evaluate(predictions, dataset)
-print(results)
+python generate_check_result.py -w 30 -m example
 ```
 
-## 🤗 Hugging Face Dataset Structure
+## 📂 File Structure
 
 ```
 IF-VidCap/
-├── benchmark/
-│   ├── videos/           # Video files
-│   ├── instructions.json # Instructions and constraints
-│   └── checklists.json   # Evaluation checklists
-└── training/
-    ├── videos/           # Training video files
-    └── annotations.json  # Training annotations
+├── videos/     # Video files
+│   ├── clip/           
+│   ├── short/
+├── annotation/   # Annotations
+│   ├── checklist.json
+│   ├── prompt.json
+│   └── video_meta_info.json
+├── meta_prompt/
+│   ├── open_ended_judge_llm_meta_prompt.txt
+│   ├── rule_based_judge_llm_meta_prompt.txt
+│   └── test_vlm_meta_prompt.txt
+├── models/     # Models to be tested 
+├── utils/
+├── inference/
+│   ├── get_response_qwen.py       # Inference script for Qwen-based models
+│   ...
+├── response/     # Model responses to be tested, naming convention: {model_name}_response.json
+├── generate_check_result.py      # Script to generate check results by LLM
+├── metrics.py                    # Script to compute metrics
 ```
 
 ### Dataset Card
 
-Visit our [Hugging Face Dataset Page](https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap) for:
+Visit our [Hugging Face Dataset Page](https://huggingface.co/datasets/NJU-LINK/IF-VidCap) for:
 - 📊 Detailed dataset statistics
 - 📝 Data format specifications
 - 🔍 Example viewer
@@ -167,7 +147,7 @@ We are preparing to release our training dataset on Hugging Face. The dataset co
 - 11K curated video-caption pairs
 - 46K video-instruction-response triplets
 - Diverse instruction types covering all 27 constraint categories
-**Expected release date**: Coming soon! Follow our [Hugging Face page](https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap) for updates.
+**Expected release date**: Coming soon! Follow our [Hugging Face page](https://huggingface.co/datasets/NJU-LINK/IF-VidCap) for updates.
 
 
 
@@ -176,21 +156,25 @@ We are preparing to release our training dataset on Hugging Face. The dataset co
 If you find our work useful, please cite:
 
 ```bibtex
-
+@misc{li2025ifvidcapvideocaptionmodels,
+      title={IF-VidCap: Can Video Caption Models Follow Instructions?}, 
+      author={Shihao Li and Yuanxing Zhang and Jiangtao Wu and Zhide Lei and Yiwen He and Runzhe Wen and Chenxi Liao and Chengkang Jiang and An Ping and Shuo Gao and Suhan Wang and Zhaozhou Bian and Zijun Zhou and Jingyi Xie and Jiayi Zhou and Jing Wang and Yifan Yao and Weihao Xie and Yingshui Tan and Yanghai Wang and Qianqian Xie and Zhaoxiang Zhang and Jiaheng Liu},
+      year={2025},
+      eprint={2510.18726},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2510.18726}, 
+}
 ```
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+Our dataset is under the CC-BY-NC-SA-4.0 license.
 
 ## 📧 Contact
 
 For questions and feedback:
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/IF-VidCap/issues)
-- 💬 Discussions: [Hugging Face Discussions](https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap/discussions)
-- 📧 Email: [contact@example.com](mailto:contact@example.com)
+- 🐛 Issues: [GitHub Issues](https://github.com/NJU-LINK/IF-VidCap/issues)
+- 💬 Discussions: [Hugging Face Discussions](https://huggingface.co/datasets/NJU-LINK/IF-VidCap/discussions)
+- 📧 Email: [lishihao@smail.nju.edu.cn](mailto:lishihao@smail.nju.edu.cn)
 

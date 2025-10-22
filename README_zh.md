@@ -11,10 +11,9 @@
   
   <p align="center">
     <a href="https://github.com/NJU-LINK/IF-VidCap"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
-    <a href="https://arxiv.org/abs/YOUR_PAPER_ID"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"></a>
+    <a href="https://arxiv.org/abs/2510.18726"><img src="https://img.shields.io/badge/arXiv-B31B1B?style=for-the-badge&logo=arxiv&logoColor=white" alt="arXiv"></a>
     <a href="https://if-vidcap.github.io"><img src="https://img.shields.io/badge/项目主页-blue?style=for-the-badge" alt="项目主页"></a>
-    <a href="https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-数据集-yellow?style=for-the-badge" alt="数据集"></a>
-    <a href="YOUR_DEMO_LINK"><img src="https://img.shields.io/badge/演示-在线-green?style=for-the-badge" alt="演示"></a>
+    <a href="https://huggingface.co/datasets/NJU-LINK/IF-VidCap"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-数据集-yellow?style=for-the-badge" alt="数据集"></a>
   </p>
 </div>
 
@@ -56,6 +55,12 @@
 - **平均约束数**：每个指令6个
 - **视频类别**：13+种多样化类别，包括电影电视、动画、体育、自然等
 
+## 📰 新闻
+- **[2025/10/22]** 📝 我们的论文已挂上 arXiv
+- **[2025/10/22]** 🤗 数据集现已在 Hugging Face 上发布
+- **[Coming Soon]** 🚀 评估脚本将很快发布
+- **[Coming Soon]** 🚀 训练数据集和代码将发布
+
 ## 🚀 快速开始
 
 ### 安装
@@ -63,75 +68,50 @@
 ```bash
 git clone https://github.com/NJU-LINK/IF-VidCap.git
 cd IF-VidCap
-pip install -r requirements.txt
+pip install openai
 ```
 
 ### 下载数据集
 
-#### 使用 Hugging Face Datasets
-
-```python
-from datasets import load_dataset
-
-# 加载基准数据集
-benchmark_dataset = load_dataset("YOUR_USERNAME/IF-VidCap", name="benchmark")
-
-# 加载训练数据集（可选）
-training_dataset = load_dataset("YOUR_USERNAME/IF-VidCap", name="training")
-
-# 访问样本
-sample = benchmark_dataset['test'][0]
-print(sample['instruction'])
-print(sample['video_path'])
-```
-
-#### 使用 Git LFS
-
 ```bash
-# 使用 Git LFS 克隆
-git lfs install
-git clone https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap
-
-# 或使用 huggingface-cli
-huggingface-cli download YOUR_USERNAME/IF-VidCap --local-dir ./IF-VidCap --local-dir-use-symlinks False
+# 使用 huggingface-cli
+hf download NJU-LINK/IF-VidCap --local-dir ./IF-VidCap --include-pattern "*.mp4"
 ```
 
 ### 评估
 
-```python
-from ifvidcap import IFVidCapEvaluator
-from datasets import load_dataset
-
-# 初始化评估器
-evaluator = IFVidCapEvaluator()
-
-# 从 Hugging Face 加载数据集
-dataset = load_dataset("YOUR_USERNAME/IF-VidCap", name="benchmark")
-
-# 加载模型预测
-predictions = load_predictions("path/to/predictions.json")
-
-# 运行评估
-results = evaluator.evaluate(predictions, dataset)
-print(results)
+```bash
+python generate_check_result.py -w 30 -m example
 ```
 
-## 🤗 Hugging Face 数据集结构
+## 📂 文件结构
 
 ```
 IF-VidCap/
-├── benchmark/
-│   ├── videos/           # 视频文件
-│   ├── instructions.json # 指令和约束
-│   └── checklists.json   # 评估清单
-└── training/
-    ├── videos/           # 训练视频文件
-    └── annotations.json  # 训练标注
+├── videos/     # 视频文件
+│   ├── clip/
+│   ├── short/
+├── annotation/   # 标注文件
+│   ├── checklist.json
+│   ├── prompt.json
+│   └── video_meta_info.json
+├── meta_prompt/
+│   ├── open_ended_judge_llm_meta_prompt.txt
+│   ├── rule_based_judge_llm_meta_prompt.txt
+│   └── test_vlm_meta_prompt.txt
+├── models/     # 待测试模型文件
+├── utils/
+├── inference/   # 推理脚本
+│   ├── get_response_qwen.py
+│   ...
+├── response/     # 待测模型响应，命名规则：{model_name}_response.json 
+├── generate_check_result.py      # 使用 LLM 生成 check 结果的脚本
+├── metrics.py                    # 计算指标的脚本
 ```
 
 ### 数据集卡片
 
-访问我们的 [Hugging Face 数据集页面](https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap) 了解：
+访问我们的 [Hugging Face 数据集页面](https://huggingface.co/datasets/NJU-LINK/IF-VidCap) 了解：
 - 📊 详细的数据集统计
 - 📝 数据格式规范
 - 🔍 示例查看器
@@ -170,27 +150,30 @@ IF-VidCap/
 - 46K 视频-指令-响应三元组
 - 涵盖所有27种约束类别的多样化指令类型
 
-**预计发布日期**：即将发布！请关注我们的 [Hugging Face 页面](https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap) 获取更新。
+**预计发布日期**：即将发布！请关注我们的 [Hugging Face 页面](https://huggingface.co/datasets/NJU-LINK/IF-VidCap) 获取更新。
 
 ## 📝 引用
 
 如果您觉得我们的工作有用，请引用：
 
 ```bibtex
-
+@misc{li2025ifvidcapvideocaptionmodels,
+      title={IF-VidCap: Can Video Caption Models Follow Instructions?}, 
+      author={Shihao Li and Yuanxing Zhang and Jiangtao Wu and Zhide Lei and Yiwen He and Runzhe Wen and Chenxi Liao and Chengkang Jiang and An Ping and Shuo Gao and Suhan Wang and Zhaozhou Bian and Zijun Zhou and Jingyi Xie and Jiayi Zhou and Jing Wang and Yifan Yao and Weihao Xie and Yingshui Tan and Yanghai Wang and Qianqian Xie and Zhaoxiang Zhang and Jiaheng Liu},
+      year={2025},
+      eprint={2510.18726},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2510.18726}, 
+}
 ```
-
-## 🤝 贡献
-
-欢迎贡献！请查看我们的[贡献指南](CONTRIBUTING.md)了解详情。
 
 ## 📄 许可证
 
-本项目采用[MIT许可证](LICENSE)。
-
+本数据集采样 CC-BY-NC-SA-4.0 许可.
 ## 📧 联系方式
 
 如有问题和反馈：
-- 🐛 问题：[GitHub Issues](https://github.com/yourusername/IF-VidCap/issues)
-- 💬 讨论：[Hugging Face Discussions](https://huggingface.co/datasets/YOUR_USERNAME/IF-VidCap/discussions)
-- 📧 邮箱：[contact@example.com](mailto:contact@example.com)
+- 🐛 问题：[GitHub Issues](https://github.com/NJU-LINK/IF-VidCap/issues)
+- 💬 讨论：[Hugging Face Discussions](https://huggingface.co/datasets/NJU-LINK/IF-VidCap/discussions)
+- 📧 邮箱：[lishihao@smail.nju.edu.cn](mailto:lishihao@smail.nju.edu.cn)
